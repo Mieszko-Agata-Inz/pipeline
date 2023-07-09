@@ -1,0 +1,10 @@
+services:
+  query_api:
+    image: query_api
+    build: 
+      context: ./query_api
+      dockerfile: Dockerfile
+    ports:
+      - "80:80"
+    env_file:
+      - ./query_api/.env
