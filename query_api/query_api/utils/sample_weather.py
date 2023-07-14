@@ -1,6 +1,5 @@
-from datapackage import Package
-
-package = Package('https://datahub.io/core/geo-countries/datapackage.json')
+from geopandas import GeoDataFrame
+import fsspec
 
 def sample_weather(country:str):
     #generate sample points
@@ -8,6 +7,7 @@ def sample_weather(country:str):
 
     #query api for each point
 
-
+#path for file is resources/countries.geojson for uvicorn
 def generate_sample_points(country: str):
-    return package.resource_names
+    df = GeoDataFrame.from_file("query_api/resources/countries.geojson")
+    return 'ok'

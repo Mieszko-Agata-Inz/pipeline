@@ -2,7 +2,8 @@ import os
 from fastapi import FastAPI
 from dotenv import load_dotenv
 
-from utils.sample_weather import sample_weather
+#remove query_api to run with uvicorn
+from query_api.utils.sample_weather import sample_weather
 load_dotenv()
 
 app = FastAPI()
