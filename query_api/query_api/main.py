@@ -2,7 +2,7 @@ import os
 from fastapi import FastAPI
 from dotenv import load_dotenv
 
-from query_api.utils.sample_weather import sample_weather
+from utils.sample_weather import sample_weather
 load_dotenv()
 
 app = FastAPI()
