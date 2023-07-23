@@ -29,3 +29,9 @@ services:
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: "1"
     depends_on:
       - "zookeeper"
+  redis:
+    image: redis:6.2-alpine
+    restart: always
+    ports:
+      - '6379:6379'
+    command: redis-server --save "" --appendonly no --loglevel warning --requirepass eYVX7EwVmmxKPCDmwMtyKVge8oLd2t81
