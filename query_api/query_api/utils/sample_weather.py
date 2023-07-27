@@ -3,7 +3,7 @@ from polygeohasher import polygeohasher
 import pygeohash as pgh
 import fsspec
 
-df = GeoDataFrame.from_file("query_api/resources/countries.geojson")
+df = GeoDataFrame.from_file("resources/countries.geojson")
 
 def sample_weather(country:str):
     #generate sample points
@@ -14,10 +14,7 @@ def sample_weather(country:str):
 #path for file is resources/countries.geojson for uvicorn - if not: query_api/resources/countries.geojson
 def generate_sample_points(country: str):
 
-    #2 above lines uncomment and 3rd delete when specified country will be available
-    #df = GeoDataFrame.from_file("resources/countries.geojson")
     specified_country_df = df.loc[df['NAME_EN']==country]
-    # specified_country_df = GeoDataFrame.from_file("resources/poland.geojson")
 
     #dataframe with geohashes
     #geohash_level == 3 it means points distance equals around 156 km
