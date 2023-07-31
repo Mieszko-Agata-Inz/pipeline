@@ -35,3 +35,27 @@ services:
     ports:
       - '6379:6379'
     command: redis-server --save "" --appendonly no --loglevel warning --requirepass eYVX7EwVmmxKPCDmwMtyKVge8oLd2t81
+  spark:
+    image: docker.io/bitnami/spark:3.3
+    container_name: spark_master
+    hostname: spark_master
+    user: root
+    environment:
+      - SPARK_MODE=master
+      - SPARK_RPC_AUTHENTICATION_ENABLED=no
+      - SPARK_RPC_ENCRYPTION_ENABLED=no
+      - SPARK_LOCAL_STORAGE_ENCRYPTION_ENABLED=no
+      - SPARK_SSL_ENABLED=no
+    ports:
+      - '8080:8080'
+    depends_on:
+      - "redis"
+      - "kafka"
+  python_scripts:
+    image: scripts
+    build:
+      context: ./spark_processing
+      dockerfile: Dockerfile
+    depends_on:
+      - "spark"
+      - "query_api"
