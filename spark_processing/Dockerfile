@@ -20,6 +20,11 @@ RUN pip install --no-cache-dir --upgrade -r /code/requirements.txt
 
 COPY ./processing.py /code/processing.py
 
+COPY ./test.py /code/test.py
+
 EXPOSE 8080
 
+
 CMD ["python3", "processing.py"]
+
+#CMD ["python3", "test.py"]

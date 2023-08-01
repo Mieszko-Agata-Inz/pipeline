@@ -21,8 +21,8 @@ from pyspark.sql.types import StructType,StructField,IntegerType,FloatType,Strin
 
 # setup arguments
 
-os.environ['PYSPARK_SUBMIT_ARGS'] = '--packages org.apache.spark:spark-sql-kafka-0-10_2.13:3.3.2 processing.py'
-#os.environ['PYSPARK_SUBMIT_ARGS'] = '--packages org.apache.spark:spark-sql-kafka-0-10_2.13:3.4.0 processing.py'
+#os.environ['PYSPARK_SUBMIT_ARGS'] = '--packages org.apache.spark:spark-sql-kafka-0-10_2.13:3.3.2,org.apache.kafka:kafka-clients:3.3.2 processing.py'
+os.environ['PYSPARK_SUBMIT_ARGS'] = '--packages org.apache.spark:spark-sql-kafka-0-10_2.13:3.4.0,org.apache.kafka:kafka-clients:3.4.0 processing.py'
 findspark.init()
 
 schema = StructType([
@@ -30,11 +30,11 @@ schema = StructType([
     StructField("y", FloatType()),
 ])
 
+#.config("spark.driver.host", "localhost")\
 spark = SparkSession \
     .builder \
     .appName("Spark Kafka Streaming Data Pipeline") \
     .master("local[*]") \
-    .config("spark.driver.host", "localhost")\
     .getOrCreate()
 spark.sparkContext.setLogLevel("ERROR")
 
@@ -43,9 +43,8 @@ input_df = spark \
   .format("kafka") \
   .option("kafka.bootstrap.servers", "127.0.0.1:9092") \
   .option("subscribe", "weather_data") \
-  .option("startingOffsets", "earliest") \
   .load() 
-
+#.option("startingOffsets", "earliest") \
 input_df.printSchema()
 
 # expanded_df = input_df \
