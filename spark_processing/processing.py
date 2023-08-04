@@ -41,10 +41,11 @@ spark.sparkContext.setLogLevel("ERROR")
 input_df = spark \
   .readStream \
   .format("kafka") \
-  .option("kafka.bootstrap.servers", "127.0.0.1:9092") \
+  .option("kafka.bootstrap.servers", "kafka:9092") \
   .option("subscribe", "weather_data") \
+  .option("startingOffsets", "earliest") \
   .load() 
-#.option("startingOffsets", "earliest") \
+
 input_df.printSchema()
 
 # expanded_df = input_df \
