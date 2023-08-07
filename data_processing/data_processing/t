@@ -1,0 +1,29 @@
+# def calc(acc, x):
+#     acc['count'] += 1
+#     acc['temperature']  += x['temperature'] / acc['count']
+#     acc['humidity']  += x['humidity'] / acc['count']
+#     return acc
+
+#flow.reduce_window('average_elements', clock_config, window_config, calc)
+
+clock_config = EventClockConfig(
+    lambda e: e["time"], wait_for_system_duration=timedelta(seconds=10)
+)
+window_config = SlidingWindow(
+    length = timedelta(minutes=2),
+    offset  = timedelta(seconds=1),
+    align_to  = alignment,
+)
+
+def key_off_user_id(event):
+    return event["user_id"], event
+
+def format_output(user_id__joined_state):
+    user_id, joined_state = user_id__joined_state
+    return {
+        "user_id": user_id,
+        "paid_order_ids": joined_state["paid_order_ids"],
+        "unpaid_order_ids": joined_state["unpaid_order_ids"],
+    }
+
+alignment = datetime.now(tz=timezone.utc)
