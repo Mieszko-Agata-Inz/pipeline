@@ -3,7 +3,9 @@ from polygeohasher import polygeohasher
 import pygeohash as pgh
 import fsspec
 
-df = GeoDataFrame.from_file("query_api/resources/countries.geojson")
+
+#path for file is resources/countries.geojson for uvicorn - if not: query_api/resources/countries.geojson
+df = GeoDataFrame.from_file("resources/countries.geojson")
 
 def sample_weather(country:str):
     #generate sample points
@@ -11,7 +13,6 @@ def sample_weather(country:str):
 
     #query api for each point
 
-#path for file is resources/countries.geojson for uvicorn - if not: query_api/resources/countries.geojson
 def generate_sample_points(country: str):
 
     specified_country_df = df.loc[df['NAME_EN']==country]

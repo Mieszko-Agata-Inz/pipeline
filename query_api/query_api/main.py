@@ -3,7 +3,6 @@ import os
 from fastapi import FastAPI
 from dotenv import load_dotenv
 from confluent_kafka.admin import AdminClient, NewTopic
-
 from confluent_kafka.cimpl import NewTopic, Producer
 
 #remove query_api to run with uvicorn - if not: query_api.utils.sample_weather
