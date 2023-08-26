@@ -48,3 +48,15 @@ services:
       - "kafka"
       - "redis"
       - "query_api"
+  redis_caching:
+    image: 'redis_caching'
+    container_name: redis_caching
+    build: 
+      context: ./redis_caching
+      dockerfile: Dockerfile
+    ports:
+      - "82:82"
+    depends_on:
+      - "kafka"
+      - "redis"
+      - "data_processing"
