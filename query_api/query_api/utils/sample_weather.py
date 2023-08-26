@@ -5,7 +5,7 @@ import fsspec
 
 
 #path for file is resources/countries.geojson for uvicorn - if not: query_api/resources/countries.geojson
-df = GeoDataFrame.from_file("resources/countries.geojson")
+df = GeoDataFrame.from_file("query_api/resources/countries.geojson")
 
 def sample_weather(country:str):
     #generate sample points
