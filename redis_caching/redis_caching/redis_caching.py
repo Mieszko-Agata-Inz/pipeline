@@ -1,5 +1,5 @@
 import redis
-import os
+# import os
 import time
 
 from kafka import KafkaConsumer
@@ -41,7 +41,7 @@ redisCli = redis.Redis(
     port=6379,
     charset="utf-8",
     decode_responses=True,
-    password = "eYVX7EwVmmxKPCDmwMtyKVge8oLd2t81" #os.getenv('REDIS_PASSWORD')
+    password = "eYVX7EwVmmxKPCDmwMtyKVge8oLd2t81"
     )
 # kafka consumer 
 kafka_consumer = KafkaConsumer('weather_data_output', bootstrap_servers='kafka:29092')
