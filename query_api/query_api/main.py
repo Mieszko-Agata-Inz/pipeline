@@ -37,5 +37,5 @@ async def weather(country: str):
 @app.get("/test/{data}")
 async def testkafka(data):
     p.produce('weather_data', json.dumps({"demo": f"{data}"}))
-    p.flush(200)
+    p.flush()
 
