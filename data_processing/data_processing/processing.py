@@ -18,12 +18,30 @@ def deserialize(key_bytes__payload_bytes):
         return 'key', json.dumps(event_data).encode()
     else:
         # return 'key', json.dumps(event_data).encode()
-        return event_data["hash"], json.dumps(event_data).encode()
+        return event_data["hash"], json.dumps(event_data)
 
 
+
+clock_config = EventClockConfig(
+    lambda e: e.time, wait_for_system_duration=timedelta(seconds=10)
+)
+
+alignment = datetime.now(tz=timezone.utc)
+#so far one minute only and every 10 seconds new window
+window_config = SlidingWindow(
+    length = timedelta(minutes=1),
+    offset  = timedelta(seconds=1),
+    align_to  = alignment,
+)
+
+def add(acc, x):
+    # acc.append(x)
+    return acc
 
 
 flow = Dataflow()
+
+flow.fold_window("sum", clock_config, window_config, list, add)
 
 flow.input( 
     "input",
