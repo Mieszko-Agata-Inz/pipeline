@@ -10,9 +10,9 @@ api_url = "https://api.openweathermap.org/data/2.5/weather?"
 p = Producer({'bootstrap.servers': os.getenv('KAFKA_BROKER')})
 
 async  def actual_weather_async(locations: list, func_get, func_set):
-    # i parameter is temporary if stop request didn't respond
+    # i parameter is temporary if stop request didn't respond - for Poland max 10 minutes
     i=0
-    while (i < 2):
+    while (i < 20):
         i+=1
         for location in locations:
             await asyncio.sleep(1)
