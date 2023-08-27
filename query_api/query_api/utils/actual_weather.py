@@ -21,10 +21,11 @@ async  def actual_weather_async(locations: list, func_get, func_set):
                 return
             response = requests.get(api_url + "lat=" + str(location[0]) + "&lon=" + str(location[1]) +"&appid=" + os.getenv('WEATHER_API_KEY'))
             response_json = response.json()
-            latitude = location[0]
-            longtitude = location[1]
+            latitude = str(location[0])
+            longtitude = str(location[1])
+            hash = latitude + longtitude
             temperature = response_json["main"]["temp"] - 273.15
-            data = json.dumps({"lat":latitude, "lon":longtitude, "temp":temperature})
+            data = json.dumps({"hash":hash, "temp":temperature})
             p.produce('weather_data', data)
             p.flush()
             yield data

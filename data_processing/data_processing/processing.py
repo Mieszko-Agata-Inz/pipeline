@@ -13,8 +13,12 @@ tracer = setup_tracing(log_level='DEBUG')
 def deserialize(key_bytes__payload_bytes):
     _, payload_bytes = key_bytes__payload_bytes
     event_data = json.loads(payload_bytes) if payload_bytes else None
-    #return 'key', event_data
-    return 'key', json.dumps(event_data).encode()
+
+    if(event_data == None):
+        return 'key', json.dumps(event_data).encode()
+    else:
+        # return 'key', json.dumps(event_data).encode()
+        return event_data["hash"], json.dumps(event_data).encode()
 
 
 
