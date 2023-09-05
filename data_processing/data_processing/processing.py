@@ -29,13 +29,13 @@ def map1(key_bytes__payload_bytes):
         return 'key', 0
     else:
         # return 'key', json.dumps(event_data).encode()
-        return event_data["hash"], event_data["temp"]
+        return event_data["hash"], (event_data["temp"],  event_data["count"])
 
 
 #maping to add to the kafka topic as key and json
 def map2(aggreagted_data):
         # return 'key', json.dumps(event_data).encode()
-        return aggreagted_data[0], json.dumps(aggreagted_data[1]).encode()
+        return aggreagted_data[0], json.dumps(aggreagted_data[1][0]/aggreagted_data[1][1]).encode()
         # return key, json.dumps(String(value)).encode()
 
 
@@ -48,8 +48,8 @@ def map2(aggreagted_data):
 #so far one minute only and every 10 seconds new window
 window_config = SlidingWindow(
     length = timedelta(minutes=1),
-    offset  = timedelta(seconds=1),
-    align_to  = datetime(2023, 8, 28, tzinfo=timezone.utc),
+    offset  = timedelta(seconds=30),
+    align_to  = datetime(2023, 9, 4, tzinfo=timezone.utc) + timedelta(seconds=10),
 )
 
 #to change!
@@ -60,7 +60,7 @@ clock_config = SystemClockConfig()
 
 #so far only sum the data - returns the sum of temepratures - change to averages for each hash
 def add(count1, count2):
-    return count1 + count2
+    return (count1[0] + count2[0], count1[1] + count2[1])
 
 
 flow = Dataflow()
