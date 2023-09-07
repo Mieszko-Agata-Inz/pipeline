@@ -27,3 +27,11 @@ def format_output(user_id__joined_state):
     }
 
 alignment = datetime.now(tz=timezone.utc)
+
+
+
+#in the future probably usefull! for elements in json split
+#in this example we split the line into words
+def tokenize(line):
+    return re.findall(r'[^\s!,.?":;0-9]+', line)
+flow.flat_map(tokenize)
