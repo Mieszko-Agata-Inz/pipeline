@@ -10,6 +10,17 @@ services:
       - ./query_api/.env
     depends_on:
       - "kafka"
+  backend:
+    image: query_api
+    build: 
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "82:82"
+    env_file:
+      - ./backend/.env
+    depends_on:
+      - "kafka"
   zookeeper:
     image: confluentinc/cp-zookeeper:6.0.14
     ports:
