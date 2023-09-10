@@ -27,5 +27,6 @@ async  def actual_weather_async(locations: list, func_get, func_set):
             temperature = response_json["main"]["temp"] - 273.15
             data = json.dumps({"hash":hash, "temp":temperature, "count":1})
             p.produce('weather_data', data)
+            p.produce('raw_weather_data', data)
             p.flush()
             yield data
