@@ -1,0 +1,19 @@
+ARG REDIS_VER=6.2.6
+ARG ARCH=x64
+ARG OSNICK=bullseye
+
+FROM redislabs/rejson:latest as rejson
+FROM redisfab/redis:${REDIS_VER}-${ARCH}-${OSNICK}
+
+ENV LD_LIBRARY_PATH /usr/lib/redis/modules
+
+WORKDIR /data
+
+COPY --from=rejson ${LD_LIBRARY_PATH}/*.so ${LD_LIBRARY_PATH}/
+
+ENTRYPOINT ["redis-server"]
+CMD ["--loadmodule", "/usr/lib/redis/modules/rejson.so", \
+    "--save", "", \
+    "--appendonly", "no", \
+    "--loglevel", "warning",\
+    "--requirepass", "eYVX7EwVmmxKPCDmwMtyKVge8oLd2t81"]
