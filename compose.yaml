@@ -16,7 +16,7 @@ services:
       context: ./backend
       dockerfile: Dockerfile
     ports:
-      - "82:82"
+      - "83:83"
     env_file:
       - ./backend/.env
     depends_on:

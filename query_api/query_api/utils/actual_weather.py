@@ -3,6 +3,7 @@ import os
 import time
 import json
 import asyncio
+import datetime
 
 from confluent_kafka.cimpl import Producer
 
@@ -25,7 +26,7 @@ async  def actual_weather_async(locations: list, func_get, func_set):
             longtitude = str(location[1])
             hash = latitude + longtitude
             temperature = response_json["main"]["temp"] - 273.15
-            data = json.dumps({"hash":hash, "temp":temperature, "count":1})
+            data = json.dumps({"hash":hash, "temp":temperature, "count":1, "timestamp": str(datetime.datetime.timestamp(datetime.datetime.utcnow())).split('.')[0]})
             p.produce('weather_data', data)
             p.produce('raw_weather_data', data)
             p.flush()
