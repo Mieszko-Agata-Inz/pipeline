@@ -25,7 +25,7 @@ def generate_sample_points(country: str):
     geohash_list = []
     [geohash_list.append(tuple(x)) for x in temp if tuple(x) not in geohash_list]
     geohash_list = list(set(geohash_list))
-    # number_of_geohash = len(geohash_list)
+    number_of_geohash = len(geohash_list)
     # geohashes = []
     # for index in range(0, len(geohash_list)):
     #     geohashes.append(pgh.decode(geohash_list[index]))

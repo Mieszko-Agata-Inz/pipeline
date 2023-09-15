@@ -11,18 +11,21 @@ api_url = "https://api.openweathermap.org/data/2.5/weather?"
 p = Producer({'bootstrap.servers': os.getenv('KAFKA_BROKER')})
 
 #locations - list with geohashes
-async  def actual_weather_async(geohashes: list, func_get, func_set):
+async  def actual_weather_async(geohashes, func_get, func_set):
     # i parameter is temporary if stop request didn't respond - for Poland max 10 minutes
     i=0
+    locations = []
+    for index in range(0, len(geohashes)):
+        locations.append(pgh.decode(geohashes[index]))
+    locations_list = list(locations)
+
     while (i < 20):
         i+=1
-        for geohash in geohashes:
+        for location in locations_list:
             await asyncio.sleep(1)
             if (func_get() == False):
                 func_set()
                 return
-
-            location = pgh.decode(geohash)
 
             response = requests.get(api_url + "lat=" + str(location[0]) + "&lon=" + str(location[1]) +"&appid=" + os.getenv('WEATHER_API_KEY'))
             response_json = response.json()
