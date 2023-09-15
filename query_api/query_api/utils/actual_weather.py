@@ -18,7 +18,7 @@ async  def actual_weather_async(geohashes, func_get, func_set):
     for index in range(0, len(geohashes)):
         locations.append(pgh.decode(geohashes[index]))
     locations_list = list(locations)
-
+    index = 0
     while (i < 20):
         i+=1
         for location in locations_list:
@@ -36,10 +36,11 @@ async  def actual_weather_async(geohashes, func_get, func_set):
             #for json structure:  geohash, lat, long, temperature in Celsius degree, wind velocity, humidity, count - used for aggregations
             #from API https://openweathermap.org/api/one-call-3
             temperature = response_json["main"]["temp"] - 273.15
-            wind_v = response_json["main"]["wind_speed"]
+            wind_v = response_json["wind"]["speed"]
             humidity = response_json["main"]["humidity"]
 
-            data = json.dumps({"hash":geohash, "lat":location[0] , "long":location[1] , "temp":temperature, "wind_v":wind_v, "humidity":humidity,  "count":1})
+            data = json.dumps({"hash":geohashes[index], "lat":location[0] , "long":location[1] , "temp":temperature, "wind_v":wind_v, "humidity":humidity,  "count":1})
+            index+=1
             p.produce('weather_data', data)
             p.produce('raw_weather_data', data)
             p.flush()
