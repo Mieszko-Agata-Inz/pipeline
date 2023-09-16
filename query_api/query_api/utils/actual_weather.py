@@ -38,6 +38,5 @@ async  def actual_weather_async(geohashes: list, func_get, func_set):
 
             data = json.dumps({"hash":geohash, "lat":location[0] , "long":location[1] , "temp":temperature, "wind_v":wind_v, "humidity":humidity,  "count":1})
             p.produce('weather_data', data)
-            p.produce('raw_weather_data', data)
             p.flush()
             yield data
