@@ -29,8 +29,8 @@ async def root():
 
 @app.get("/weather/{country}")
 async def weather(country: str):
-    locations, number = sample_weather(country)
-    return StreamingResponse(actual_weather_async(locations, get_shared_data,set_shared_data_true))
+    geohashes, number = sample_weather(country)
+    return StreamingResponse(actual_weather_async(geohashes, get_shared_data,set_shared_data_true))
 
 @app.get("/stop")
 async def stopdata():
