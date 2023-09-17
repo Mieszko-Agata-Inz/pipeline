@@ -59,7 +59,7 @@ def process_summary(message):
     print(message)
     for key, value in message.items():
         for consumer_record in value:
-            redisCli.json().set(f"s{n}", '$',json.dumps(consumer_record.value.decode('utf-8')))
+            redisCli.json().set(f"s{key}", '$',(consumer_record.value.decode('utf-8')))
             n+=1
 
 

@@ -29,13 +29,20 @@ def map1(key_bytes__payload_bytes):
         return 'key', 0
     else:
         # return 'key', json.dumps(event_data).encode()
-        return event_data["hash"], (event_data["temp"],  event_data["count"])
+        return event_data["hash"], (event_data["timestamp"],event_data["lat"],
+        event_data["long"], event_data["temp"],
+        event_data["wind_v"], event_data["humidity"],  event_data["count"])
 
 
 #maping to add to the kafka topic as key and json
 def map2(aggreagted_data):
+        data = {'lat':aggreagted_data[1][1],
+                'long':aggreagted_data[1][2],
+             'temp' : aggreagted_data[1][3]/aggreagted_data[1][6],
+             'wind_v' : aggreagted_data[1][4]/aggreagted_data[1][6],
+             'humidity' : aggreagted_data[1][5]/aggreagted_data[1][6]}
         # return 'key', json.dumps(event_data).encode()
-        return aggreagted_data[0], json.dumps(aggreagted_data[1][0]/aggreagted_data[1][1]).encode()
+        return aggreagted_data[0], json.dumps(data).encode('utf-8')
         # return key, json.dumps(String(value)).encode()
 
 
@@ -60,7 +67,8 @@ clock_config = SystemClockConfig()
 
 #so far only sum the data - returns the sum of temepratures - change to averages for each hash
 def add(count1, count2):
-    return (count1[0] + count2[0], count1[1] + count2[1])
+    return (count1[0], count1[1], count1[2], count1[3] + count2[3],
+     count1[4] + count2[4], count1[5] + count2[5], count1[6] + count2[6])
 
 
 flow = Dataflow()
