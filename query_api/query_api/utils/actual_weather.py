@@ -62,13 +62,17 @@ async  def actual_weather_async(geohashes, func_get, func_set):
             longtitude = str(location[1])
             hash = latitude + longtitude
 
-            #for json structure:  geohash, lat, long, temperature in Celsius degree, wind velocity, humidity, count - used for aggregations
+            #for json structure:  geohash, timestamp,  lat, long, temperature in Celsius degree, wind velocity, humidity, count - used for aggregations
             #from API https://openweathermap.org/api/one-call-3
             temperature = response_json["main"]["temp"] - 273.15
             wind_v = response_json["wind"]["speed"]
             humidity = response_json["main"]["humidity"]
             geohash = 'g'.join([str(item) for item in geohashes[geo_index]])
-            data = json.dumps({"hash":geohash, "timestamp": str(datetime.datetime.timestamp(datetime.datetime.utcnow())).split('.')[0],  "lat":location[0] , "long":location[1] ,  "temp":temperature, "wind_v":wind_v, "humidity":humidity,  "count":1})
+            
+            data = json.dumps({"hash":geohash, "timestamp": str(datetime.datetime.timestamp(datetime.datetime.utcnow())).split('.')[0],
+              "lat":location[0] , "long":location[1] ,  "temp":temperature,
+               "wind_v":wind_v, "humidity":humidity,  "count":1})
+
             geo_index+=1
             p.produce('weather_data', data)
             p.produce('raw_weather_data', data)
