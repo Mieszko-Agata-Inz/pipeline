@@ -3,6 +3,7 @@ ARG ARCH=x64
 ARG OSNICK=bullseye
 
 FROM redislabs/rejson:latest as rejson
+FROM redislabs/redisearch:latest as redisearch
 FROM redisfab/redis:${REDIS_VER}-${ARCH}-${OSNICK}
 
 ENV LD_LIBRARY_PATH /usr/lib/redis/modules
@@ -10,9 +11,11 @@ ENV LD_LIBRARY_PATH /usr/lib/redis/modules
 WORKDIR /data
 
 COPY --from=rejson ${LD_LIBRARY_PATH}/*.so ${LD_LIBRARY_PATH}/
+COPY --from=redisearch ${LD_LIBRARY_PATH}/redisearch.so ${LD_LIBRARY_PATH}/
 
 ENTRYPOINT ["redis-server"]
 CMD ["--loadmodule", "/usr/lib/redis/modules/rejson.so", \
+    "--loadmodule", "/usr/lib/redis/modules/redisearch.so", \
     "--save", "", \
     "--appendonly", "no", \
     "--loglevel", "warning",\

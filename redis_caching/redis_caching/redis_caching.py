@@ -17,33 +17,40 @@ redisCli = redis.Redis(
     password="eYVX7EwVmmxKPCDmwMtyKVge8oLd2t81",
 )
 # kafka consumer
-n = 0
+nr = 0
+ns = 0
 kafka_consumer = KafkaConsumer("weather_data_output", bootstrap_servers="kafka:29092")
 kafka_consumer_2 = KafkaConsumer("raw_weather_data", bootstrap_servers="kafka:29092")
 
 
 def process_summary(message):
-    global n
+    global ns
     print(message)
     for key, value in message.items():
         for consumer_record in value:
             data = json.loads(
                 consumer_record.value
             )  # .decode(encoding="ascii", errors="replace")
-            redisCli.json().set("s" + consumer_record.key.decode("ascii"), "$", data)
-            n += 1
+            data['geohash'] = consumer_record.key.decode("ascii")
+            data['timestamp']=int(data['timestamp'])
+            redisCli.json().set(f"summ:{ns}", "$", data)
+            redisCli.quit()
+            ns += 1
 
 
 def process_raw(message):
-    global n
+    global nr
     print(message)
     for key, value in message.items():
         for consumer_record in value:
             data = json.loads(
                 consumer_record.value
             )  # .decode(encoding="ascii", errors="replace")
-            redisCli.json().set("r" + consumer_record.key.decode("ascii"), "$", data)
-            n += 1
+            data['geohash'] = consumer_record.key.decode("ascii")
+            data['timestamp']=int(data['timestamp'])
+            redisCli.json().set(f"raw:{nr}", "$", data)
+            redisCli.quit()
+            nr += 1
 
 
 timeout = 100
