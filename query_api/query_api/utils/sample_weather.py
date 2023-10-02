@@ -23,6 +23,8 @@ def generate_sample_points(country: str):
     geohashed_df = polygeohasher.create_geohash_list(
         specified_country_df, 3, inner=False
     )
+
+    # geohash_optimizer(dataframe, maximum_geohash_level, minimum_geohash_level, input_geohash_level)
     geohashed_df_optimized = polygeohasher.geohash_optimizer(geohashed_df, 3, 3, 3)
     temp = list(geohashed_df_optimized["optimized_geohash_list"].values)
     geohash_list = []

@@ -5,6 +5,7 @@ import json
 import asyncio
 import pygeohash as pgh
 import datetime
+import random
 
 from confluent_kafka.cimpl import Producer
 
@@ -29,12 +30,15 @@ async def actual_weather_async(geohashes, func_get, func_set):
                 func_set()
                 return
 
+            rand_lat = location[0] + random.randint(-42, 42) / 60
+            rand_long = location[1] + random.randint(-42, 42) / 60
+
             response = requests.get(
                 api_url
                 + "lat="
-                + str(location[0])
+                + str(rand_lat)
                 + "&lon="
-                + str(location[1])
+                + str(rand_long)
                 + "&appid="
                 + os.getenv("WEATHER_API_KEY")
             )
