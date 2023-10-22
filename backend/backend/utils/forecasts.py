@@ -17,11 +17,11 @@ def get_forecast(geohash, coldstart_models, hot_models):
     res = redisCli.ft('aggregated').search(q)
     redisCli.quit()
     log1.info("%s", "redis close", exc_info=1)
-    dummy_data=[93.03,6.0,1,1,2015,4]#relh  sknt  day  month  year  hour
-    #switch between models TODO
-    val = coldstart_models["xgb1"][1].predict([dummy_data])
-    return f"{val}"
-    #do cleanup here
-    #clean_aggregated()
-    #make prediction here and return result
+    
+    if len(res.docs)==0:#change required number of dataframes here
+        #cold goes here
+        dummy_data=[93.03,6.0,1,1,2015,4]#relh  sknt  day  month  year  hour
+        val = coldstart_models["xgb1"][1].predict([dummy_data])
+        return f"{val}"
+    #hot goes here
     return res
