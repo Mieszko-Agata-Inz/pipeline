@@ -6,13 +6,14 @@ from fastapi import FastAPI, File, UploadFile
 from dotenv import load_dotenv
 from confluent_kafka.admin import AdminClient, NewTopic
 import datetime
+from backend.utils.cleanup import clean_aggregated, clean_raw
 from backend.utils.conn import redisCli
 from confluent_kafka.cimpl import NewTopic, Producer
 import redis
 from redis.commands.search.field import TextField, NumericField, TagField
 from redis.commands.search.indexDefinition import IndexDefinition, IndexType
 from backend.utils.forecasts import get_forecast
-
+from fastapi_restful.tasks import repeat_every
 from backend.utils.raw_data import get_raw_data
 import pickle
 #remove query_api to run with uvicorn - if not: query_api.utils.sample_weather
@@ -50,6 +51,13 @@ async def initialize_index():
     redisCli.ft('aggregated').create_index(schema_processed, definition=IndexDefinition(prefix=["summ:"], index_type=IndexType.JSON))
     redisCli.quit()
     print("init success")
+
+@app.on_event("startup")
+@repeat_every(seconds=40)
+def remove_expired_tokens_task() -> None:
+    sleep(20)
+    clean_raw("dummy_timestamp")
+    clean_aggregated()
 
 
 #redis-cli -a "eYVX7EwVmmxKPCDmwMtyKVge8oLd2t81"
