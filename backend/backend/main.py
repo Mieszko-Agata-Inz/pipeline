@@ -55,7 +55,6 @@ async def initialize_index():
 @app.on_event("startup")
 @repeat_every(seconds=40)
 def remove_expired_tokens_task() -> None:
-    sleep(20)
     clean_raw("dummy_timestamp")
     clean_aggregated()
 
