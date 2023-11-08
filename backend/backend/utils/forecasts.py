@@ -28,6 +28,8 @@ def get_forecast(geohash, coldstart_models, hot_models):
             datetime.datetime.timestamp(datetime.datetime.utcnow())
         )).sort_by("timestamp", asc=False)
         res = redisCli.ft('raw').search(q)
+        if len(res.docs)==0:
+            return "no data"
         response_json = json.loads(res.docs[0].json)
         fdate =  datetime.datetime.fromtimestamp(response_json["timestamp"])
         data = [
