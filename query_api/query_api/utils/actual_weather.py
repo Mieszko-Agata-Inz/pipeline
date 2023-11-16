@@ -64,8 +64,21 @@ async def actual_weather_async(geohashes, func_get, func_set):
                 }
             )
 
+            data_raw = json.dumps(
+                {
+                    "timestamp": str(
+                        datetime.datetime.timestamp(datetime.datetime.utcnow())
+                    ).split(".")[0],
+                    "lat": location[0],
+                    "long": location[1],
+                    "temp": temperature,
+                    "wind_v": wind_v,
+                    "humidity": humidity,
+                }
+            )
+
             geo_index += 1
             p.produce("weather_data", key=geohash, value=data)
-            p.produce("raw_weather_data", key=geohash, value=data)
+            p.produce("raw_weather_data", key=geohash, value=data_raw)
             p.flush()
             yield data
