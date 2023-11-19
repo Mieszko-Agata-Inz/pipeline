@@ -63,7 +63,7 @@ def get_forecast(geohash, coldstart_models, hot_models):
         val_1 = coldstart_models["xgb1"][1].predict([data])
         val_2 = coldstart_models["xgb2"][1].predict([data])
         val_3 = coldstart_models["xgb3"][1].predict([data])
-        return [f"{val_1}", f"{val_2}", f"{val_3}"]
+        return ["xgb", f"{val_1}", f"{val_2}", f"{val_3}"]
     # so far for hot model # example
     if len(res.docs) != window_size:
         data_for_models = [
@@ -78,7 +78,7 @@ def get_forecast(geohash, coldstart_models, hot_models):
         ]
         val_1 = hot_models["lstm1"][1].predict(data_for_models)
 
-        return [f"{val_1}"]
+        return ["single hot",f"{val_1}"]
 
     # hot goes here
     if len(res.docs) == window_size:
@@ -102,6 +102,6 @@ def get_forecast(geohash, coldstart_models, hot_models):
         val_2 = hot_models["lstm2"][1].predict(data_for_models)
         val_3 = hot_models["lstm3"][1].predict(data_for_models)
 
-        return [f"{val_1}", f"{val_2}", f"{val_3}"]
+        return ["multi hot",f"{val_1}", f"{val_2}", f"{val_3}"]
 
     return res
