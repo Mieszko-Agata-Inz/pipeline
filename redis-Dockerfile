@@ -1,11 +1,11 @@
-ARG REDIS_VER=7.2.2
-ARG ARCH=x64
-ARG OSNICK=bullseye
+# ARG REDIS_VER=7.2.2
+# ARG ARCH=x64
+# ARG OSNICK=bullseye
 
 FROM redislabs/rejson:latest as rejson
 FROM redislabs/redisearch:latest as redisearch
-FROM redisfab/redis:${REDIS_VER}-${ARCH}-${OSNICK}
-
+# FROM redisfab/redis:${REDIS_VER}-${ARCH}-${OSNICK}
+FROM redis:latest
 ENV LD_LIBRARY_PATH /usr/lib/redis/modules
 
 WORKDIR /data
