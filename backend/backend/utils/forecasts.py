@@ -6,12 +6,12 @@ import numpy
 from redis.commands.search.query import NumericFilter, Query
 from backend.utils.cleanup import clean_aggregated
 from backend.utils.conn import redisCli
-
+window_size = 6
+features_size = 3
 
 def get_forecast(geohash, coldstart_models, hot_models):
     # window_size and features_size: depends on hot model
-    window_size = 6
-    features_size = 3
+    
 
     q = (
         Query(f"@geohash:{geohash}")
@@ -81,7 +81,7 @@ def get_forecast(geohash, coldstart_models, hot_models):
         return ["single hot",f"{val_1}"]
 
     # hot goes here
-    if len(res.docs) == window_size:
+    if len(res.docs) >= window_size:
         append_data = []
         for index in range(window_size):
             response_json = json.loads(res.docs[index].json)
@@ -105,3 +105,67 @@ def get_forecast(geohash, coldstart_models, hot_models):
         return ["multi hot",f"{val_1}", f"{val_2}", f"{val_3}"]
 
     return res
+
+
+def get_forecast_all(coldstart_models, hot_models):
+    q = (
+        Query(f"*")
+        .add_filter(
+            NumericFilter(
+                "timestamp",
+                datetime.datetime.timestamp(datetime.datetime.utcnow()) - 300,
+                datetime.datetime.timestamp(datetime.datetime.utcnow()),
+            )
+        )
+        .sort_by("timestamp", asc=False)
+    )
+    res = redisCli.ft("aggregated").search(q)
+    #preprocess
+    ghd = {}
+    for doc in  res.docs:
+        response_json = json.loads(res.docs[0].json)
+        key = response_json["geohash"]
+        fdate = datetime.datetime.fromtimestamp(response_json["timestamp"])
+        data_xgb = [
+            response_json["humidity"],
+            response_json["temp"],
+            fdate.day,
+            fdate.month,
+            fdate.year,
+            fdate.hour,
+        ]
+        data_lstm = [
+            response_json["humidity"],
+            response_json["wind_v"],
+            response_json["temp"],
+        ]
+        if key in ghd:
+            ghd[key][1].insert(0, data_lstm) #only update the lstm data because due to sorting the dict is initialised with the most recent data
+        else:
+            ghd[key] = (data_xgb, [data_lstm])
+
+    if len(ghd)==0:
+        return res
+        #return "no data"
+    #predictions
+    pred = []
+    for key in ghd:
+        if len(ghd[key][1])>=window_size:
+            ready_data=[]
+            for i in range(window_size):
+                ready_data.append(ghd[key][1][i])
+            append_data = numpy.array(ready_data)  # sth is wrong here!!! and locally it works:(
+            data_for_models = append_data.reshape(1, window_size, features_size)
+            val_1 = hot_models["lstm1"][1].predict(data_for_models)
+            val_2 = hot_models["lstm2"][1].predict(data_for_models)
+            val_3 = hot_models["lstm3"][1].predict(data_for_models)
+            val = [key, "lstm", f"{val_1}", f"{val_2}", f"{val_3}"]
+            pred.append(val)
+        else:
+            data = ghd[key][0]
+            val_1 = coldstart_models["xgb1"][1].predict([data])
+            val_2 = coldstart_models["xgb2"][1].predict([data])
+            val_3 = coldstart_models["xgb3"][1].predict([data])
+            val = [key, "xgb", f"{val_1}", f"{val_2}", f"{val_3}"]
+            pred.append(val)
+    return pred

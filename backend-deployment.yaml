@@ -27,6 +27,12 @@ spec:
       containers:
         - image: backend
           name: backend
+          env:
+            - name: WEATHER_API_KEY
+              value: test1KAFKA
+            - name: WEATHER_API_KEY
+              value: KAFKA_BROKER
+              - name: kafka:29092
           ports:
             - containerPort: 83
               hostPort: 83

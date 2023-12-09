@@ -12,7 +12,7 @@ from confluent_kafka.cimpl import NewTopic, Producer
 import redis
 from redis.commands.search.field import TextField, NumericField, TagField
 from redis.commands.search.indexDefinition import IndexDefinition, IndexType
-from backend.utils.forecasts import get_forecast
+from backend.utils.forecasts import get_forecast, get_forecast_all
 from fastapi_restful.tasks import repeat_every
 from backend.utils.raw_data import get_raw_data
 import pickle
@@ -82,6 +82,16 @@ async def forecast(geohash):
     geohash - string of a geohash, must correspond to a geohash present in redis
     """
     return get_forecast(geohash, coldstart_models, hot_models)
+
+
+@app.get("/forecast/all")
+async def forecast_all():
+    """
+    function returns a forecast for a given geohash
+
+    geohash - string of a geohash, must correspond to a geohash present in redis
+    """
+    return get_forecast_all(coldstart_models, hot_models)
 
 
 @app.get("/rawdata/{timestamp}")
