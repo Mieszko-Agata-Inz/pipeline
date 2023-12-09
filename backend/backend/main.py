@@ -17,6 +17,8 @@ from fastapi_restful.tasks import repeat_every
 from backend.utils.raw_data import get_raw_data
 import pickle
 
+from utils.refresh_api import refresh_api
+
 # remove query_api to run with uvicorn - if not: query_api.utils.sample_weather
 
 load_dotenv()

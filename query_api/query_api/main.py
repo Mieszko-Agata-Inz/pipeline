@@ -1,3 +1,4 @@
+import asyncio
 import os
 from fastapi import FastAPI, Depends
 from dotenv import load_dotenv
@@ -11,8 +12,11 @@ load_dotenv()
 
 app = FastAPI()
 
+lock = asyncio.Lock()
+
 #isOpen for get_weather request
 isOpen = True
+isWork = False
 def get_shared_data():
     return isOpen
 def set_shared_data_true():
@@ -23,16 +27,43 @@ def set_shared_data_false():
     global isOpen
     isOpen = False
 
+def set_inactive():
+    global isWork
+    isWork = False
+
+def set_active():
+    global isWork
+    isWork = False
+
+def get_active():
+    global isWork
+    return isWork
+
 @app.get("/")
 async def root():
     return {"message": f"{os.getenv('WEATHER_API_KEY')}"}
 
 @app.get("/weather/{country}")
 async def weather(country: str):
-    geohashes, number = sample_weather(country)
-    return StreamingResponse(actual_weather_async(geohashes, get_shared_data,set_shared_data_true))
+    global lock
+    print("start")
+    async with lock:
+        if get_active():
+            return
+        set_active()
+    while True:
+        print("enter loop")
+        async with lock:
+            if get_active():
+                return
+        geohashes, number = sample_weather(country)
+        await actual_weather_async(geohashes, get_shared_data,set_shared_data_true)
+    return 200
 
 @app.get("/stop")
 async def stopdata():
-    set_shared_data_false()
+    global lock
+    async with lock:
+        set_shared_data_false()
+        set_inactive()
 
