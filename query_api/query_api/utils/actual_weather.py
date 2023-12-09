@@ -21,7 +21,7 @@ async def actual_weather_async(geohashes, func_get, func_set):
     locations_list = list(locations)
     fails=0
     ts = []
-    while i < 2:
+    while i < 20:
         i += 1
         geo_index = 0
         for location in locations_list:
@@ -83,6 +83,4 @@ async def actual_weather_async(geohashes, func_get, func_set):
             p.produce("weather_data", key=geohash, value=data)
             p.produce("raw_weather_data", key=geohash, value=data_raw)
             p.flush()
-    print(f"fails: {fails}")
-    print(ts)
 

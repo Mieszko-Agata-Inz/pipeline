@@ -52,7 +52,6 @@ async def weather(country: str):
             return
         set_active()
     while True:
-        print("enter loop")
         async with lock:
             if get_active():
                 return
