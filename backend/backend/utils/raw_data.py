@@ -18,5 +18,5 @@ def get_raw_data(timestamp):
     redisCli.quit()
     log1.info("%s", "redis close", exc_info=1)
     #do cleanup here
-    clean_raw(timestamp)
+    #clean_raw(timestamp)
     return res

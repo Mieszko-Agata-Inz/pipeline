@@ -33,8 +33,11 @@ def process_summary(message):
             )  # .decode(encoding="ascii", errors="replace")
             data["geohash"] = consumer_record.key.decode("ascii")
             data["timestamp"] = int(data["timestamp"])
-            redisCli.json().set(f"summ:{ns}", "$", data)
-            redisCli.quit()
+            try:
+                redisCli.json().set(f"summ:{ns}", "$", data)
+                redisCli.quit()
+            except:
+                print("connection reset")
             ns += 1
 
 
@@ -48,8 +51,11 @@ def process_raw(message):
             )  # .decode(encoding="ascii", errors="replace")
             data["geohash"] = consumer_record.key.decode("ascii")
             data["timestamp"] = int(data["timestamp"])
-            redisCli.json().set(f"raw:{nr}", "$", data)
-            redisCli.quit()
+            try:
+                redisCli.json().set(f"raw:{nr}", "$", data)
+                redisCli.quit()
+            except:
+                print("connection reset")
             nr += 1
 
 
