@@ -30,8 +30,8 @@ def get_forecast(geohash, coldstart_models, hot_models):
     res = redisCli.ft("aggregated").search(q)
 
     # log1.info("%s", "redis close", exc_info=1)
-
-    if len(res.docs) == 0:  # change required number of dataframes here
+    print(f"recieved {len(res.docs)} aggregated")
+    if len(res.docs) < window_size:  # change required number of dataframes here
         # cold goes here
         q2 = (
             Query(f"@geohash:{geohash}")
@@ -46,6 +46,7 @@ def get_forecast(geohash, coldstart_models, hot_models):
             .sort_by("timestamp", asc=False)
         )
         res = redisCli.ft("raw").search(q)
+        print(f"recieved {len(res.docs)} raw")
         if len(res.docs) == 0:
             return "no data"
         response_json = json.loads(res.docs[0].json)
@@ -59,29 +60,29 @@ def get_forecast(geohash, coldstart_models, hot_models):
             fdate.hour,
         ]
         # json.loads(res.docs[0].json)["temp"]
-        dummy_data = [93.03, 6.0, 1, 1, 2015, 4]  # relh  sknt  day  month  year  hour
+        #dummy_data = [93.03, 6.0, 1, 1, 2015, 4]  # relh  sknt  day  month  year  hour
         val_1 = coldstart_models["xgb1"][1].predict([data])
         val_2 = coldstart_models["xgb2"][1].predict([data])
         val_3 = coldstart_models["xgb3"][1].predict([data])
         return ["xgb", f"{val_1}", f"{val_2}", f"{val_3}"]
     # so far for hot model # example
-    if len(res.docs) != window_size:
-        data_for_models = [
-            [
-                [0.53388956, -0.35487241, -1.45145732],
-                [0.20356396, -0.5873226, -1.45145732],
-                [0.21142885, -0.35487241, -1.33661515],
-                [-0.35903823, -0.12242222, -1.1069308],
-                [-0.5991797, -0.12242222, -0.87724645],
-                [-1.04538143, -0.12242222, -0.64756211],
-            ]
-        ]
-        val_1 = hot_models["lstm1"][1].predict(data_for_models)
+    # if len(res.docs) != window_size:
+    #     data_for_models = [
+    #         [
+    #             [0.53388956, -0.35487241, -1.45145732],
+    #             [0.20356396, -0.5873226, -1.45145732],
+    #             [0.21142885, -0.35487241, -1.33661515],
+    #             [-0.35903823, -0.12242222, -1.1069308],
+    #             [-0.5991797, -0.12242222, -0.87724645],
+    #             [-1.04538143, -0.12242222, -0.64756211],
+    #         ]
+    #     ]
+    #     val_1 = hot_models["lstm1"][1].predict(data_for_models)
 
-        return ["single hot",f"{val_1}"]
+    #     return ["single hot",f"{val_1}"]
 
     # hot goes here
-    if len(res.docs) == window_size:
+    if len(res.docs) >= window_size:
         append_data = []
         for index in range(window_size):
             response_json = json.loads(res.docs[index].json)

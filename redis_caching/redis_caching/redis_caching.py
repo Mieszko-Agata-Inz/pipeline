@@ -39,6 +39,7 @@ def process_summary(message):
             except:
                 print("connection reset")
             ns += 1
+    print("succesfull save to aggregated")
 
 
 def process_raw(message):
@@ -57,7 +58,7 @@ def process_raw(message):
             except:
                 print("connection reset")
             nr += 1
-
+    print("succesfull save to raw")
 
 timeout = 100
 while True:

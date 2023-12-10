@@ -56,7 +56,10 @@ async def weather(country: str):
             if get_active():
                 return
         geohashes, number = sample_weather(country)
-        await actual_weather_async(geohashes, get_shared_data,set_shared_data_true)
+        try:
+            await actual_weather_async(geohashes, get_shared_data,set_shared_data_true)
+        except:
+            print("issue while querying api, retry")
     return 200
 
 @app.get("/stop")
