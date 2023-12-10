@@ -22,15 +22,31 @@ import pickle
 load_dotenv()
 api_key = "12345"
 p = Producer({"bootstrap.servers": os.getenv("KAFKA_BROKER")})
-coldstart_models = {
-    "xgb1": ("xgb1.pkl", pickle.load(open("backend/resources/xgb_1.pkl", "rb", -1))),
-    "xgb2": ("xgb2.pkl", pickle.load(open("backend/resources/xgb_2.pkl", "rb", -1))),
-    "xgb3": ("xgb3.pkl", pickle.load(open("backend/resources/xgb_3.pkl", "rb", -1))),
-}
-hot_models = {
-    "lstm1": ("lstm1.pkl", pickle.load(open("backend/resources/lstm_1.pkl", "rb", -1))),
-    "lstm2": ("lstm2.pkl", pickle.load(open("backend/resources/lstm_2.pkl", "rb", -1))),
-    "lstm3": ("lstm3.pkl", pickle.load(open("backend/resources/lstm_3.pkl", "rb", -1))),
+coldstart_models = {}
+coldstart_models_biases = {}
+
+# models and biases loading
+for name in ["xgb_1", "xgb_2", "xgb_3"]:
+    file_name = "backend/resources/" + name + ".pkl"
+    with open(file_name, "rb") as f_1:
+        coldstart_models[name] = (name + ".pkl", pickle.load(f_1))
+        # coldstart_models_biases[name + "_bias"] = (name + ".pkl", pickle.load(f_1)) # UNCOMMENT WHEN DATA IN PICKLE FILE
+
+hot_models = {}
+hot_models_biases = {}
+
+for name in ["lstm_1", "lstm_2", "lstm_3"]:
+    file_name = "backend/resources/" + name + ".pkl"
+    with open(file_name, "rb") as f_1:
+        hot_models[name] = (name + ".pkl", pickle.load(f_1))
+        # hot_models_biases[name + "_bias"] = (name + ".pkl", pickle.load(f_1)) # UNCOMMENT WHEN DATA IN PICKLE FILE
+
+
+mean_and_std = {
+    "data": (
+        "mean_and_std.pkl",
+        pickle.load(open("backend/resources/mean_and_std.pkl", "rb", -1)),
+    ),
 }
 
 app = FastAPI()
@@ -74,14 +90,23 @@ async def root():
     return {"message": f"No datapoints available"}
 
 
-@app.get("/forecast/{geohash}")
-async def forecast(geohash):
+@app.get("/forecast/{lat}/{lon}")
+async def forecast(lat: float, lon: float):
     """
     function returns a forecast for a given geohash
 
     geohash - string of a geohash, must correspond to a geohash present in redis
     """
-    return get_forecast(geohash, coldstart_models, hot_models)
+
+    return get_forecast(
+        lat,
+        lon,
+        coldstart_models,
+        hot_models,
+        mean_and_std,
+        hot_models_biases,
+        coldstart_models_biases,
+    )
 
 
 @app.get("/rawdata/{timestamp}")
@@ -117,10 +142,10 @@ async def update_model(
                 contents = file.file.read()
                 with open(model_path, "wb") as f:
                     f.write(contents)
-                coldstart_models[model_name] = (
-                    model_filename,
-                    pickle.load(open(model_path, "rb", -1)),
-                )
+                with open(model_path, "rb") as f_1:
+                    coldstart_models[model_name] = (model_filename, pickle.load(f_1))
+                    # coldstart_models_biases[model_name + "_bias"] = (model_name + ".pkl", pickle.load(f_1)) # UNCOMMENT WHEN DATA IN PICKLE FILE
+
                 return 1
             except Exception as e:
                 return f"failed to load {e}"
@@ -131,10 +156,9 @@ async def update_model(
                 contents = file.file.read()
                 with open(model_path, "wb") as f:
                     f.write(contents)
-                hot_models[model_name] = (
-                    model_filename,
-                    pickle.load(open(model_path, "rb", -1)),
-                )
+                with open(model_path, "rb") as f_1:
+                    hot_models[model_name] = (model_filename, pickle.load(f_1))
+                    # hot_models_biases[model_name + "_bias"] = (model_name + ".pkl", pickle.load(f_1)) # UNCOMMENT WHEN DATA IN PICKLE FILE
                 return 1
             except Exception as e:
                 return f"failed to load {e}"

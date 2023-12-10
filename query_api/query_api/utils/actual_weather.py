@@ -5,6 +5,7 @@ import json
 import asyncio
 import pygeohash as pgh
 import datetime
+# import random
 
 from confluent_kafka.cimpl import Producer
 
@@ -29,12 +30,16 @@ async def actual_weather_async(geohashes, func_get, func_set):
                 func_set()
                 return
 
+            # sampling
+            rand_lat = location[0] #+ random.randint(-42, 42) / 60
+            rand_long = location[1] #+ random.randint(-42, 42) / 60
+
             response = requests.get(
                 api_url
                 + "lat="
-                + str(location[0])
+                + str(rand_lat)
                 + "&lon="
-                + str(location[1])
+                + str(rand_long)
                 + "&appid="
                 + os.getenv("WEATHER_API_KEY")
             )
@@ -46,7 +51,7 @@ async def actual_weather_async(geohashes, func_get, func_set):
             # for json structure:  geohash, timestamp,  lat, long, temperature in Celsius degree, wind velocity, humidity, count - used for aggregations
             # from API https://openweathermap.org/api/one-call-3
             temperature = response_json["main"]["temp"] - 273.15
-            wind_v = response_json["wind"]["speed"]
+            wind_v = response_json["wind"]["speed"] * 3.6
             humidity = response_json["main"]["humidity"]
             geohash = "g".join([str(item) for item in geohashes[geo_index]])
 
