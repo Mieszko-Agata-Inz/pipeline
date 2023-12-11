@@ -16,6 +16,7 @@ from backend.utils.forecasts import get_forecast
 from fastapi_restful.tasks import repeat_every
 from backend.utils.raw_data import get_raw_data
 import pickle
+import numpy
 
 # remove query_api to run with uvicorn - if not: query_api.utils.sample_weather
 
@@ -35,7 +36,7 @@ for name in ["xgb_1", "xgb_2", "xgb_3"]:
         # coldstart_models_biases[name + "_bias"] = (
         #     name + ".pkl",
         #     pickle.load(f_1),
-        # ) # UNCOMMENT WHEN DATA IN PICKLE FILE
+        # )  # UNCOMMENT WHEN DATA IN PICKLE FILE
 
 hot_models = {}
 hot_models_biases = {}

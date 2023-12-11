@@ -55,33 +55,33 @@ def get_forecast(
             )
             .sort_by("timestamp", asc=False)
         )
-        res = redisCli.ft("raw").search(q2)
+        res = redisCli.ft("raw").search(q)
         if len(res.docs) != 0:
             # return "no data"
             response_json = json.loads(res.docs[0].json)
             fdate = datetime.datetime.fromtimestamp(response_json["timestamp"])
             #### data for new pickles
-            # data = [
-            #     lon,
-            #     lat,
-            #     response_json["temp"],
-            #     response_json["humidity"],
-            #     response_json["wind_v"],
-            #     fdate.day,
-            #     fdate.month,
-            #     fdate.year,
-            #     fdate.hour,
-            # ]
-
-            #### data for old pickles
             data = [
-                response_json["humidity"],
+                lon,
+                lat,
                 response_json["temp"],
+                response_json["humidity"],
+                response_json["wind_v"],
                 fdate.day,
                 fdate.month,
                 fdate.year,
                 fdate.hour,
             ]
+
+            #### data for old pickles
+            # data = [
+            #     response_json["humidity"],
+            #     response_json["temp"],
+            #     fdate.day,
+            #     fdate.month,
+            #     fdate.year,
+            #     fdate.hour,
+            # ]
 
             ################################
             val_1 = coldstart_models["xgb_1"][1].predict([data])
@@ -92,7 +92,7 @@ def get_forecast(
             # val_1 = val_1 - df_with_biases[df_with_biases.index == 0]
             # val_2 = val_2 - df_with_biases[df_with_biases.index == 1]
             # val_3 = val_3 - df_with_biases[df_with_biases.index == 2]
-            # biases will be here
+
             return {
                 "hour0": data[2:5],
                 "hour1": ((val_1[2:5])).tolist(),
