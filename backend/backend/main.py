@@ -22,10 +22,12 @@ import pickle
 load_dotenv()
 api_key = "12345"
 p = Producer({"bootstrap.servers": os.getenv("KAFKA_BROKER")})
+
+# models and biases loading
 coldstart_models = {}
 coldstart_models_biases = {}
 
-# models and biases loading
+
 for name in ["xgb_1", "xgb_2", "xgb_3"]:
     file_name = "backend/resources/" + name + ".pkl"
     with open(file_name, "rb") as f_1:
@@ -41,7 +43,7 @@ for name in ["lstm_1", "lstm_2", "lstm_3"]:
         hot_models[name] = (name + ".pkl", pickle.load(f_1))
         # hot_models_biases[name + "_bias"] = (name + ".pkl", pickle.load(f_1)) # UNCOMMENT WHEN DATA IN PICKLE FILE
 
-
+# mean and std for lstm data normalization
 mean_and_std = {
     "data": (
         "mean_and_std.pkl",

@@ -22,7 +22,9 @@ def get_forecast(
     # window_size and features_size: depends on hot model
     window_size = 6
     features_size = 3
+    # get geohash for given in input params latitude and longtitude
     geohash = pgh.encode(lat, lon, precision=3)
+
     q = (
         Query(f"@geohash:{geohash}")
         .paging(0, 30)
@@ -41,92 +43,93 @@ def get_forecast(
 
     # log1.info("%s", "redis close", exc_info=1)
 
-    if len(res.docs) == 0:  # change required number of dataframes here
+    if len(res.docs) != window_size:  # change required number of dataframes here
+        # if True:
         # cold goes here
         ######## data from kafka ########
-        # q2 = (
-        #     Query(f"@geohash:{geohash}")
-        #     .paging(0, 1)
-        #     .add_filter(
-        #         NumericFilter(
-        #             "timestamp",
-        #             datetime.datetime.timestamp(datetime.datetime.utcnow()) - 10,
-        #             datetime.datetime.timestamp(datetime.datetime.utcnow()),
-        #         )
-        #     )
-        #     .sort_by("timestamp", asc=False)
-        # )
-        # res = redisCli.ft("raw").search(q)
-        # if len(res.docs) == 0:
-        #     return "no data"
-        # response_json = json.loads(res.docs[0].json)
-        # fdate = datetime.datetime.fromtimestamp(response_json["timestamp"])
-        # data = [
-        #     lon,
-        #     lat,
-        #     response_json["temp"],
-        #     response_json["humidity"],
-        #     response_json["wind_v"],
-        #     fdate.day,
-        #     fdate.month,
-        #     fdate.year,
-        #     fdate.hour,
-        # ]
-
-        ################################
-
-        # json.loads(res.docs[0].json)["temp"]
-        dummy_data = [93.03, 6.0, 1, 1, 2015, 4]  # relh  sknt  day  month  year  hour
-        # data if new models updated
-        # dummy_data_new = [22,50,-3,93.03, 18.0, 1, 1, 2015, 4]  # lon lat tmpc relh  speed(km/h)  day  month  year  hour
-        val_1 = coldstart_models["xgb_1"][1].predict([dummy_data])
-        val_2 = coldstart_models["xgb_2"][1].predict([dummy_data])
-        val_3 = coldstart_models["xgb_3"][1].predict([dummy_data])
-        # biases will be here
-        return {
-            "hour0": dummy_data[2:5],
-            "hour1": ((val_1[0:3])).tolist(),
-            "hour2": ((val_2[0:3])).tolist(),
-            "hour3": ((val_3[0:3])).tolist(),
-        }
-    # so far for hot model # example
-    if len(res.docs) != window_size:
-        data_for_models = [
-            [
-                [89, 10, -5],
-                [86, 8, -3],
-                [84, 11, -3],
-                [82, 12, -4],
-                [83, 10, -5],
-                [79, 10, -5],
+        q2 = (
+            Query(f"@geohash:{geohash}")
+            .paging(0, 1)
+            .add_filter(
+                NumericFilter(
+                    "timestamp",
+                    datetime.datetime.timestamp(datetime.datetime.utcnow()) - 10,
+                    datetime.datetime.timestamp(datetime.datetime.utcnow()),
+                )
+            )
+            .sort_by("timestamp", asc=False)
+        )
+        res = redisCli.ft("raw").search(q2)
+        if len(res.docs) != 0:
+            # return "no data"
+            response_json = json.loads(res.docs[0].json)
+            fdate = datetime.datetime.fromtimestamp(response_json["timestamp"])
+            data = [
+                lon,
+                lat,
+                response_json["temp"],
+                response_json["humidity"],
+                response_json["wind_v"],
+                fdate.day,
+                fdate.month,
+                fdate.year,
+                fdate.hour,
             ]
-        ]
 
-        # mean and std for normalization
-        training_mean = mean_and_std["data"][1]["mean"].values
-        training_std = mean_and_std["data"][1]["std"].values
+            ################################
 
-        # data normalization
-        data = [
-            ((np.array(data_for_models[0]) - training_mean) / training_std).tolist()
-        ]
-        print(data)
-        val_1 = hot_models["lstm_1"][1].predict(data)
-        val_2 = hot_models["lstm_2"][1].predict(data)
-        val_3 = hot_models["lstm_3"][1].predict(data)
+            # json.loads(res.docs[0].json)["temp"]
+            # dummy_data = [93.03, 6.0, 1, 1, 2015, 4]  # relh  sknt  day  month  year  hour
+            # data if new models updated
+            # dummy_data_new = [22,50,-3,93.03, 18.0, 1, 1, 2015, 4]  # lon lat tmpc relh  speed(km/h)  day  month  year  hour
+            val_1 = coldstart_models["xgb_1"][1].predict([data])
+            val_2 = coldstart_models["xgb_2"][1].predict([data])
+            val_3 = coldstart_models["xgb_3"][1].predict([data])
+            # biases will be here
+            return {
+                "hour0": data[2:5],
+                "hour1": ((val_1[2:5])).tolist(),
+                "hour2": ((val_2[2:5])).tolist(),
+                "hour3": ((val_3[2:5])).tolist(),
+            }
+        else:
+            # so far for hot model # example
+            data_for_models = [
+                [
+                    [89, 10, -5],
+                    [86, 8, -3],
+                    [84, 11, -3],
+                    [82, 12, -4],
+                    [83, 10, -5],
+                    [79, 10, -5],
+                ]
+            ]
 
-        # data denormalization
-        val_1 = (val_1[0] * training_std) + training_mean
-        val_2 = (val_2[0] * training_std) + training_mean
-        val_3 = (val_3[0] * training_std) + training_mean
+            # mean and std for normalization
+            training_mean = mean_and_std["data"][1]["mean"].values
+            training_std = mean_and_std["data"][1]["std"].values
 
-        # return values
-        return {
-            "hour0": data_for_models[0][5],
-            "hour1": ((val_1)).tolist(),
-            "hour2": ((val_2)).tolist(),
-            "hour3": ((val_3)).tolist(),
-        }
+            # data normalization
+            data = [
+                ((np.array(data_for_models[0]) - training_mean) / training_std).tolist()
+            ]
+            print(data)
+            val_1 = hot_models["lstm_1"][1].predict(data)
+            val_2 = hot_models["lstm_2"][1].predict(data)
+            val_3 = hot_models["lstm_3"][1].predict(data)
+
+            # data denormalization
+            val_1 = (val_1[0] * training_std) + training_mean
+            val_2 = (val_2[0] * training_std) + training_mean
+            val_3 = (val_3[0] * training_std) + training_mean
+
+            # return values
+            return {
+                "hour0": data_for_models[0][5],
+                "hour1": ((val_1)).tolist(),
+                "hour2": ((val_2)).tolist(),
+                "hour3": ((val_3)).tolist(),
+            }
 
     # hot goes here
     if len(res.docs) == window_size:
