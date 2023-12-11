@@ -1,9 +1,9 @@
 services:
   query_api:
-    image: query_api
-    build: 
-      context: ./query_api
-      dockerfile: Dockerfile
+    image: rekyar/query_api
+    # build: 
+    #   context: ./query_api
+    #   dockerfile: Dockerfile
     ports:
       - "80:80"
     env_file:
@@ -11,10 +11,10 @@ services:
     depends_on:
       - "kafka"
   backend:
-    image: backend
-    build: 
-      context: ./backend
-      dockerfile: Dockerfile
+    image: rekyar/backend
+    # build: 
+    #   context: ./backend
+    #   dockerfile: Dockerfile
     ports:
       - "83:83"
     env_file:
@@ -44,19 +44,19 @@ services:
     depends_on:
       - "zookeeper"
   redis:
-    #image: redis:6.2-alpine
-    build: 
-      context: .
-      dockerfile: redis-Dockerfile
+    image: rekyar/redis
+    # build: 
+    #   context: .
+    #   dockerfile: redis-Dockerfile
     restart: always
     ports:
       - '6379:6379'
     #command: redis-server --save "" --appendonly no --loglevel warning --requirepass eYVX7EwVmmxKPCDmwMtyKVge8oLd2t81
   data_processing:
-    image: 'data_processing'
-    build: 
-      context: ./data_processing
-      dockerfile: Dockerfile
+    image: 'rekyar/data_processing'
+    # build: 
+    #   context: ./data_processing
+    #   dockerfile: Dockerfile
     ports:
       - "81:81"
     depends_on:
@@ -64,11 +64,11 @@ services:
       - "redis"
       - "query_api"
   redis_caching:
-    image: 'redis_caching'
+    image: 'rekyar/redis_caching'
     container_name: redis_caching
-    build: 
-      context: ./redis_caching
-      dockerfile: Dockerfile
+    # build: 
+    #   context: ./redis_caching
+    #   dockerfile: Dockerfile
     ports:
       - "82:82"
     depends_on:
