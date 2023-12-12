@@ -1,6 +1,6 @@
 services:
   query_api:
-    image: rekyar/query_api
+    image: agata2000/query_api
     # build: 
     #   context: ./query_api
     #   dockerfile: Dockerfile
@@ -11,7 +11,7 @@ services:
     depends_on:
       - "kafka"
   backend:
-    image: rekyar/backend
+    image: agata2000/backend
     # build: 
     #   context: ./backend
     #   dockerfile: Dockerfile
@@ -44,7 +44,7 @@ services:
     depends_on:
       - "zookeeper"
   redis:
-    image: rekyar/redis
+    image: agata2000/redis
     # build: 
     #   context: .
     #   dockerfile: redis-Dockerfile
@@ -53,7 +53,7 @@ services:
       - '6379:6379'
     #command: redis-server --save "" --appendonly no --loglevel warning --requirepass eYVX7EwVmmxKPCDmwMtyKVge8oLd2t81
   data_processing:
-    image: 'rekyar/data_processing'
+    image: 'agata2000/data_processing'
     # build: 
     #   context: ./data_processing
     #   dockerfile: Dockerfile
@@ -64,7 +64,7 @@ services:
       - "redis"
       - "query_api"
   redis_caching:
-    image: 'rekyar/redis_caching'
+    image: 'agata2000/redis_caching'
     container_name: redis_caching
     # build: 
     #   context: ./redis_caching

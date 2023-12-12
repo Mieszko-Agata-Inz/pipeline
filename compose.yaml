@@ -1,7 +1,7 @@
 services:
   query_api:
     image: query_api
-    build: 
+    build:
       context: ./query_api
       dockerfile: Dockerfile
     ports:
@@ -12,7 +12,7 @@ services:
       - "kafka"
   backend:
     image: backend
-    build: 
+    build:
       context: ./backend
       dockerfile: Dockerfile
     ports:
@@ -45,7 +45,7 @@ services:
       - "zookeeper"
   redis:
     #image: redis:6.2-alpine
-    build: 
+    build:
       context: .
       dockerfile: redis-Dockerfile
     restart: always
@@ -54,7 +54,7 @@ services:
     #command: redis-server --save "" --appendonly no --loglevel warning --requirepass eYVX7EwVmmxKPCDmwMtyKVge8oLd2t81
   data_processing:
     image: 'data_processing'
-    build: 
+    build:
       context: ./data_processing
       dockerfile: Dockerfile
     ports:
@@ -66,7 +66,7 @@ services:
   redis_caching:
     image: 'redis_caching'
     container_name: redis_caching
-    build: 
+    build:
       context: ./redis_caching
       dockerfile: Dockerfile
     ports:
