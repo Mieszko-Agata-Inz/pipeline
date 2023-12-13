@@ -17,9 +17,10 @@ async def actual_weather_async(geohashes, func_get, func_set):
     i = 0
     locations = []
     for index in range(0, len(geohashes)):
-        locations.append(pgh.decode(geohashes[index]))
+        locations.append(pgh.decode_exactly(geohashes[index]))
     locations_list = list(locations)
     fails = 0
+
     ts = []
     while i < 20:
         i += 1

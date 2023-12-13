@@ -49,6 +49,7 @@ def process_raw(message):
             data = json.loads(
                 consumer_record.value
             )  # .decode(encoding="ascii", errors="replace")
+            print(consumer_record.key.decode("ascii"))  # new - delete later
             data["geohash"] = consumer_record.key.decode("ascii")
             data["timestamp"] = int(data["timestamp"])
             try:
