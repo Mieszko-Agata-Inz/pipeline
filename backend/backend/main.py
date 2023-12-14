@@ -24,11 +24,11 @@ load_dotenv()
 api_key = "12345"
 p = Producer({"bootstrap.servers": os.getenv("KAFKA_BROKER")})
 
-# models and biases loading
+# Initialize dictionaries to store coldstart models and their biases
 coldstart_models = {}
 coldstart_models_biases = {}
 
-
+# Initialize dictionaries to store coldstart and hot models and their biases
 for name in ["xgb_1", "xgb_2", "xgb_3"]:
     file_name = "backend/resources/" + name + ".pkl"
     with open(file_name, "rb") as f_1:
@@ -38,16 +38,19 @@ for name in ["xgb_1", "xgb_2", "xgb_3"]:
         #     pickle.load(f_1),
         # )  # UNCOMMENT WHEN DATA IN PICKLE FILE
 
+# Initialize dictionaries to store hot models and their biases
 hot_models = {}
 hot_models_biases = {}
 
+
+# Load hot models from pickle files
 for name in ["lstm_1", "lstm_2", "lstm_3"]:
     file_name = "backend/resources/" + name + ".pkl"
     with open(file_name, "rb") as f_1:
         hot_models[name] = (name + ".pkl", pickle.load(f_1))
         # hot_models_biases[name + "_bias"] = (name + ".pkl", pickle.load(f_1)) # UNCOMMENT WHEN DATA IN PICKLE FILE
 
-# mean and std for lstm data normalization
+# Load mean and standard deviation for LSTM data normalization
 mean_and_std = {
     "data": (
         "mean_and_std.pkl",
@@ -55,12 +58,14 @@ mean_and_std = {
     ),
 }
 
+# Create FastAPI app instance
 app = FastAPI()
-
 
 @app.on_event("startup")
 async def initialize_index():
+    # Delay execution for 30 seconds
     sleep(30)
+    # Define schemas for raw and processed data
     schema_raw = (
         NumericField("$.lat", as_name="latitude"),
         NumericField("$.long", as_name="longtitude"),
@@ -71,6 +76,7 @@ async def initialize_index():
         NumericField("$.timestamp", as_name="timestamp"),
         TextField("$.geohash", as_name="geohash"),
     )
+    # Create Redis indexes for raw and aggregated data
     redisCli.ft("raw").create_index(
         schema_raw,
         definition=IndexDefinition(prefix=["raw:"], index_type=IndexType.JSON),
@@ -79,6 +85,7 @@ async def initialize_index():
         schema_processed,
         definition=IndexDefinition(prefix=["summ:"], index_type=IndexType.JSON),
     )
+    # Disconnect from Redis
     redisCli.quit()
     print("init success")
 
@@ -86,13 +93,14 @@ async def initialize_index():
 @app.on_event("startup")
 @repeat_every(seconds=40)
 def remove_expired_tokens_task() -> None:
+    # Periodically clean raw and aggregated data
     clean_raw("dummy_timestamp")
     clean_aggregated()
 
 
-# redis-cli -a "eYVX7EwVmmxKPCDmwMtyKVge8oLd2t81"
 @app.get("/")
 async def root():
+    # Root endpoint, returns a simple message
     return {"message": f"No datapoints available"}
 
 
@@ -101,7 +109,7 @@ async def forecast(lat: float, lon: float):
     """
     function returns a forecast for a given geohash
 
-    geohash - string of a geohash, must correspond to a geohash present in redis
+    lat, lon - lattitude and longitude for which we wnat to obtain prediction
     """
 
     return get_forecast(

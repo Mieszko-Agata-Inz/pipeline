@@ -1,7 +1,7 @@
 from datetime import timedelta, datetime, timezone
 from bytewax.dataflow import Dataflow
 from bytewax.connectors.kafka import KafkaInput, KafkaOutput
-from bytewax.connectors.stdio import StdOutput  # for testing purposes
+from bytewax.connectors.stdio import StdOutput  # For testing purposes
 from bytewax.window import (
     EventClockConfig,
     SlidingWindow,
@@ -11,20 +11,23 @@ from bytewax.window import (
 from bytewax.tracing import setup_tracing
 import json, time
 
+# Delay execution for 40 seconds, typically to ensure system readiness or dependencies
 time.sleep(40)
 
+# Set up tracing for debugging purposes, with a log level of DEBUG
 tracer = setup_tracing(log_level="DEBUG")
 
-
-# maping for key as hash and temperature as value
+# Function to map key-value pairs from Kafka; deserializes JSON payload
 def map1(key_bytes__payload_bytes):
     key, payload_bytes = key_bytes__payload_bytes
+    # If payload is present, load it as JSON, else return None
     event_data = json.loads(payload_bytes) if payload_bytes else None
 
+    # If key is None, return a default key and a tuple of zeros and one
     if key == None:
         return "key", (0, 0, 0, 0, 0, 0, 1)
     else:
-        # return 'key', json.dumps(event_data).encode()
+        # Decode key from bytes to ASCII and return it with event data values as tuple
         return key.decode("ascii"), (
             event_data["timestamp"],
             event_data["lat"],
@@ -35,9 +38,9 @@ def map1(key_bytes__payload_bytes):
             event_data["count"],
         )
 
-
-# maping to add to the kafka topic as key and json
+# Function to map aggregated data to JSON, preparing it for Kafka output
 def map2(aggreagted_data):
+    # Aggregate data and calculate averages for temperature, wind velocity, and humidity
     data = {
         "timestamp": aggreagted_data[1][0],
         "lat": aggreagted_data[1][1],
@@ -46,28 +49,26 @@ def map2(aggreagted_data):
         "wind_v": aggreagted_data[1][4] / aggreagted_data[1][6],
         "humidity": aggreagted_data[1][5] / aggreagted_data[1][6],
     }
-    # return 'key', json
+    # Return the key and the JSON serialized aggregated data
     return aggreagted_data[0], json.dumps(data)
 
-
-# alignment =  datetime.now(tz=timezone.utc)
-
-# to change!
+# Clock configuration for windowing; currently using system time
+# Uncomment the EventClockConfig for event time-based processing
 clock_config = SystemClockConfig()
 # clock_config = EventClockConfig(
 #     lambda e: e["time"], wait_for_system_duration=timedelta(seconds=10)
 # )
 
-# so far one minute only and every 30 seconds new window
+# Configuration for a sliding window of 1 minute with a 30-second offset
+# Adjust the alignment time as needed
 window_config = SlidingWindow(
     length=timedelta(minutes=1),
     offset=timedelta(seconds=30),
     align_to=datetime(2023, 9, 4, tzinfo=timezone.utc)
-    + timedelta(seconds=10),  # datatime to change?
+    + timedelta(seconds=10),  # Update alignment datetime as needed
 )
 
-
-# averages for each hash
+# Function to aggregate data by summing up the counts
 def add(count1, count2):
     return (
         count1[0],
@@ -79,18 +80,20 @@ def add(count1, count2):
         count1[6] + count2[6],
     )
 
-
-# data flow
+# Define the dataflow for processing
 flow = Dataflow()
+# Input from Kafka topic "weather_data"
 flow.input(
     "input",
     KafkaInput(brokers=["kafka:29092"], topics=["weather_data"], tail=True),
 )
 
+# Apply the mapping and reduction functions
 flow.map(map1)
 flow.reduce_window("sum", clock_config, window_config, add)
 flow.map(map2)
 
+# Output the processed data to a Kafka topic "weather_data_output"
 flow.output(
     "k_output", KafkaOutput(brokers=["kafka:29092"], topic="weather_data_output")
 )
