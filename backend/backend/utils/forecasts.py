@@ -95,7 +95,7 @@ def get_forecast(
             # val_3 = val_3 - df_with_biases[df_with_biases.index == 2]
 
             return {
-                "hour0": data[2:5],
+                "hour0": (numpy.array([data[3], data[4], data[2]])).tolist(),
                 "hour1": (
                     numpy.array([val_1[0][3], val_1[0][4], val_1[0][2]])
                 ).tolist(),  # ((val_1[2:5])).tolist(),
