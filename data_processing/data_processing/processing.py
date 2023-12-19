@@ -62,8 +62,8 @@ clock_config = SystemClockConfig()
 # Configuration for a sliding window of 1 minute with a 30-second offset
 # Adjust the alignment time as needed
 window_config = SlidingWindow(
-    length=timedelta(minutes=1),
-    offset=timedelta(seconds=30),
+    length=timedelta(minutes=30),
+    offset=timedelta(minutes=30),
     align_to=datetime(2023, 9, 4, tzinfo=timezone.utc)
     + timedelta(seconds=10),  # Update alignment datetime as needed
 )

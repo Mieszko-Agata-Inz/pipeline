@@ -19,7 +19,7 @@ def get_forecast(
     coldstart_models_biases,
 ):
     # window_size and features_size: depends on hot model
-    window_size = 6
+    window_size = 12
     features_size = 3
 
     geohash = geohash = "g".join(
@@ -28,11 +28,10 @@ def get_forecast(
 
     q = (
         Query(f"@geohash:{geohash}")
-        .paging(0, 30)
         .add_filter(
             NumericFilter(
                 "timestamp",
-                datetime.datetime.timestamp(datetime.datetime.utcnow()) - 300,
+                datetime.datetime.timestamp(datetime.datetime.utcnow()) - 21700,
                 datetime.datetime.timestamp(datetime.datetime.utcnow()),
             )
         )
@@ -58,7 +57,7 @@ def get_forecast(
             )
             .sort_by("timestamp", asc=False)
         )
-        res = redisCli.ft("raw").search(q)
+        res = redisCli.ft("raw").search(q2)
         if len(res.docs) != 0:
             # return "no data"
             response_json = json.loads(res.docs[0].json)
