@@ -12,7 +12,7 @@ from bytewax.tracing import setup_tracing
 import json, time
 
 # Delay execution for 40 seconds, typically to ensure system readiness or dependencies
-time.sleep(40)
+time.sleep(60)
 
 # Set up tracing for debugging purposes, with a log level of DEBUG
 tracer = setup_tracing(log_level="DEBUG")

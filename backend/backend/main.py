@@ -16,6 +16,7 @@ from backend.utils.forecasts import get_forecast
 from fastapi_restful.tasks import repeat_every
 from backend.utils.raw_data import get_raw_data
 import pickle
+from fastapi.middleware.cors import CORSMiddleware
 import numpy
 
 # remove query_api to run with uvicorn - if not: query_api.utils.sample_weather
@@ -63,6 +64,12 @@ mean_and_std = {
 
 # Create FastAPI app instance
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    )
 
 @app.on_event("startup")
 async def initialize_index():
