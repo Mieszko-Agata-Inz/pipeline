@@ -12,6 +12,7 @@ services:
       - "kafka"
   backend:
     image: backend
+    container_name: backend
     build:
       context: ./backend
       dockerfile: Dockerfile
@@ -75,3 +76,12 @@ services:
       - "kafka"
       - "redis"
       - "data_processing"
+  frontend:
+    image: frontend
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "81:8080"
+    depends_on:
+      - "backend"
