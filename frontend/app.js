@@ -1,15 +1,11 @@
 var express = require("express");
 var path = require("path");
-var cookieParser = require("cookie-parser");
 var logger = require("morgan");
-const https = require('http');
 
 var app = express();
 
 app.use(logger("dev"));
 app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
-app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public-flutter")));
 // // Add headers before the routes are defined
 app.use(function (req, res, next) {
@@ -21,9 +17,11 @@ app.use(function (req, res, next) {
     next();
 });
 
-const port = 8080; // Choose a suitable port number
-app.listen(port, () => {
-    console.log(`Server is running on port ${port}`);
-});
 
-module.exports = app;
+setTimeout(function () {
+    const port = 8080;
+    app.listen(port, () => {
+        console.log(`Server is running on port ${port}`);
+    });
+}, 70000); // 70 seconds of sleep just to wait for data in pipeline for first predictions
+
