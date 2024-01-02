@@ -49,7 +49,7 @@ for name in ["lstm_1", "lstm_2", "lstm_3"]:
     file_name = "backend/resources/" + name + ".pkl"
     with open(file_name, "rb") as f_1:
         hot_models[name] = (name + ".pkl", pickle.load(f_1))
-        hot_models_biases[name + "_bias"] = (
+        hot_models_biases[name] = (
             name + ".pkl",
             pickle.load(f_1),
         )  # UNCOMMENT WHEN DATA IN PICKLE FILE
@@ -169,7 +169,7 @@ async def update_model(
                     f.write(contents)
                 with open(model_path, "rb") as f_1:
                     coldstart_models[model_name] = (model_filename, pickle.load(f_1))
-                    coldstart_models_biases[model_name + "_bias"] = (
+                    coldstart_models_biases[model_name] = (
                         model_name + ".pkl",
                         pickle.load(f_1),
                     )  # UNCOMMENT WHEN DATA IN PICKLE FILE
@@ -186,7 +186,7 @@ async def update_model(
                     f.write(contents)
                 with open(model_path, "rb") as f_1:
                     hot_models[model_name] = (model_filename, pickle.load(f_1))
-                    hot_models_biases[model_name + "_bias"] = (
+                    hot_models_biases[model_name] = (
                         model_name + ".pkl",
                         pickle.load(f_1),
                     )  # UNCOMMENT WHEN DATA IN PICKLE FILE

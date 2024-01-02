@@ -23,8 +23,8 @@ async def actual_weather_async(geohashes, func_get, func_set):
 
     ts = []
     while i < 20:
-        i += 1
         geo_index = 0
+    #     i += 1
         for location in locations_list:
             await asyncio.sleep(1)
             if func_get() == False:
