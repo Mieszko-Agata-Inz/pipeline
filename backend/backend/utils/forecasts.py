@@ -90,20 +90,47 @@ def get_forecast(
             val_2 = coldstart_models["xgb_2"][1].predict([data])
             val_3 = coldstart_models["xgb_3"][1].predict([data])
             # df_with_biases = coldstart_models_biases["xgb_1"][1]
-            # val_1 = val_1 - df_with_biases[df_with_biases.index == 0]
-            # val_2 = val_2 - df_with_biases[df_with_biases.index == 1]
-            # val_3 = val_3 - df_with_biases[df_with_biases.index == 2]
+            # val_1 = val_1 + df_with_biases[df_with_biases.index == 0]
+            # val_2 = val_2 + df_with_biases[df_with_biases.index == 1]
+            # val_3 = val_3 + df_with_biases[df_with_biases.index == 2]
 
             return {
                 "hour0": (numpy.array([data[3], data[4], data[2]])).tolist(),
                 "hour1": (
-                    numpy.array([val_1[0][3], val_1[0][4], val_1[0][2]])
+                    numpy.array(
+                        [
+                            val_1[0][3]
+                            + coldstart_models_biases["xgb_1"][1]["humid"][0],
+                            val_1[0][4]
+                            + coldstart_models_biases["xgb_1"][1]["wind"][0],
+                            val_1[0][2]
+                            + coldstart_models_biases["xgb_1"][1]["temp"][0],
+                        ]
+                    )
                 ).tolist(),  # ((val_1[2:5])).tolist(),
                 "hour2": (
-                    numpy.array([val_2[0][3], val_2[0][4], val_2[0][2]])
+                    numpy.array(
+                        [
+                            val_2[0][3]
+                            + coldstart_models_biases["xgb_1"][1]["humid"][1],
+                            val_2[0][4]
+                            + coldstart_models_biases["xgb_1"][1]["wind"][1],
+                            val_2[0][2]
+                            + coldstart_models_biases["xgb_1"][1]["temp"][1],
+                        ]
+                    )
                 ).tolist(),
                 "hour3": (
-                    numpy.array([val_3[0][3], val_3[0][4], val_3[0][2]])
+                    numpy.array(
+                        [
+                            val_3[0][3]
+                            + coldstart_models_biases["xgb_1"][1]["humid"][2],
+                            val_3[0][4]
+                            + coldstart_models_biases["xgb_1"][1]["wind"][2],
+                            val_3[0][2]
+                            + coldstart_models_biases["xgb_1"][1]["temp"][2],
+                        ]
+                    )
                 ).tolist(),
             }
             # return {

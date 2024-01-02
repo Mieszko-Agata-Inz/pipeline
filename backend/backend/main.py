@@ -34,10 +34,10 @@ for name in ["xgb_1", "xgb_2", "xgb_3"]:
     file_name = "backend/resources/" + name + ".pkl"
     with open(file_name, "rb") as f_1:
         coldstart_models[name] = (name + ".pkl", pickle.load(f_1))
-        # coldstart_models_biases[name] = (
-        #     name + ".pkl",
-        #     pickle.load(f_1),
-        # )  # UNCOMMENT WHEN DATA IN PICKLE FILE
+        coldstart_models_biases[name] = (
+            name + ".pkl",
+            pickle.load(f_1),
+        )  # UNCOMMENT WHEN DATA IN PICKLE FILE
 
 # Initialize dictionaries to store hot models and their biases
 hot_models = {}
@@ -49,10 +49,10 @@ for name in ["lstm_1", "lstm_2", "lstm_3"]:
     file_name = "backend/resources/" + name + ".pkl"
     with open(file_name, "rb") as f_1:
         hot_models[name] = (name + ".pkl", pickle.load(f_1))
-        # hot_models_biases[name + "_bias"] = (
-        #     name + ".pkl",
-        #     pickle.load(f_1),
-        # )  # UNCOMMENT WHEN DATA IN PICKLE FILE
+        hot_models_biases[name + "_bias"] = (
+            name + ".pkl",
+            pickle.load(f_1),
+        )  # UNCOMMENT WHEN DATA IN PICKLE FILE
 
 # Load mean and standard deviation for LSTM data normalization
 mean_and_std = {
@@ -69,7 +69,8 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
     allow_methods=["*"],
-    )
+)
+
 
 @app.on_event("startup")
 async def initialize_index():
@@ -168,10 +169,10 @@ async def update_model(
                     f.write(contents)
                 with open(model_path, "rb") as f_1:
                     coldstart_models[model_name] = (model_filename, pickle.load(f_1))
-                    # coldstart_models_biases[model_name + "_bias"] = (
-                    #     model_name + ".pkl",
-                    #     pickle.load(f_1),
-                    # )  # UNCOMMENT WHEN DATA IN PICKLE FILE
+                    coldstart_models_biases[model_name + "_bias"] = (
+                        model_name + ".pkl",
+                        pickle.load(f_1),
+                    )  # UNCOMMENT WHEN DATA IN PICKLE FILE
 
                 return 1
             except Exception as e:
@@ -185,7 +186,10 @@ async def update_model(
                     f.write(contents)
                 with open(model_path, "rb") as f_1:
                     hot_models[model_name] = (model_filename, pickle.load(f_1))
-                    # hot_models_biases[model_name + "_bias"] = (model_name + ".pkl", pickle.load(f_1)) # UNCOMMENT WHEN DATA IN PICKLE FILE
+                    hot_models_biases[model_name + "_bias"] = (
+                        model_name + ".pkl",
+                        pickle.load(f_1),
+                    )  # UNCOMMENT WHEN DATA IN PICKLE FILE
                 return 1
             except Exception as e:
                 return f"failed to load {e}"
