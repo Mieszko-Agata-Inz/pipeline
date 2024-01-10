@@ -15,7 +15,6 @@ def get_forecast(
     coldstart_models,
     hot_models,
     mean_and_std,
-    hot_models_biases,
     coldstart_models_biases,
 ):
     # window_size and features_size: depends on hot model
@@ -25,7 +24,7 @@ def get_forecast(
     geohash = geohash = "g".join(
         [str(item) for item in pgh.encode(lat, lon, precision=3)]
     )
-
+    print(geohash)
     q = (
         Query(f"@geohash:{geohash}")
         .add_filter(
@@ -74,6 +73,8 @@ def get_forecast(
                 fdate.year,
                 fdate.hour,
             ]
+
+            print(data)
 
             #### data for old pickles
             # data = [
@@ -139,8 +140,8 @@ def get_forecast(
             #     "hour2": (val_2[0][2:5]).tolist(),
             #     "hour3": (val_3[0][2:5]).tolist(),
             # }
-    else:
-        return "no data"
+        else:
+            return "no data"
     #     # so far for hot model # example
     #     data_for_models = [
     #         [
@@ -227,9 +228,9 @@ def get_forecast(
         # return values
         return {
             "hour0": ((data_for_models[0][5])).tolist(),
-            "hour1": ((val_1 + hot_models_biases["lstm_1"][1].values[0])).tolist(),
-            "hour2": ((val_2 + hot_models_biases["lstm_2"][1].values[0])).tolist(),
-            "hour3": ((val_3 + hot_models_biases["lstm_3"][1].values[0])).tolist(),
+            "hour1": ((val_1)).tolist(),
+            "hour2": ((val_2)).tolist(),
+            "hour3": ((val_3)).tolist(),
         }
 
     return "no data"

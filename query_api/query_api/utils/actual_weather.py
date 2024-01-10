@@ -22,9 +22,11 @@ async def actual_weather_async(geohashes, func_get, func_set):
     fails = 0
 
     ts = []
+
+    # while loop doesn't work till # i+=1 is being commented
     while i < 20:
         geo_index = 0
-    #     i += 1
+        #     i += 1
         for location in locations_list:
             await asyncio.sleep(1)
             if func_get() == False:
@@ -50,9 +52,6 @@ async def actual_weather_async(geohashes, func_get, func_set):
             if response.status_code != 200:
                 fails = fails + 1
             response_json = response.json()
-            latitude = str(location[0])
-            longtitude = str(location[1])
-            hash = latitude + longtitude
             # for json structure:  geohash, timestamp,  lat, long, temperature in Celsius degree, wind velocity, humidity, count - used for aggregations
             # from API https://openweathermap.org/api/one-call-3
             temperature = response_json["main"]["temp"] - 273.15  # Celsius degrees

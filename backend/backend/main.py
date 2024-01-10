@@ -41,7 +41,6 @@ for name in ["xgb_1", "xgb_2", "xgb_3"]:
 
 # Initialize dictionaries to store hot models and their biases
 hot_models = {}
-hot_models_biases = {}
 
 
 # Load hot models from pickle files
@@ -49,10 +48,6 @@ for name in ["lstm_1", "lstm_2", "lstm_3"]:
     file_name = "backend/resources/" + name + ".pkl"
     with open(file_name, "rb") as f_1:
         hot_models[name] = (name + ".pkl", pickle.load(f_1))
-        hot_models_biases[name] = (
-            name + ".pkl",
-            pickle.load(f_1),
-        )  # UNCOMMENT WHEN DATA IN PICKLE FILE
 
 # Load mean and standard deviation for LSTM data normalization
 mean_and_std = {
@@ -129,7 +124,6 @@ async def forecast(lat: float, lon: float):
         coldstart_models,
         hot_models,
         mean_and_std,
-        hot_models_biases,
         coldstart_models_biases,
     )
 
@@ -186,10 +180,6 @@ async def update_model(
                     f.write(contents)
                 with open(model_path, "rb") as f_1:
                     hot_models[model_name] = (model_filename, pickle.load(f_1))
-                    hot_models_biases[model_name] = (
-                        model_name + ".pkl",
-                        pickle.load(f_1),
-                    )  # UNCOMMENT WHEN DATA IN PICKLE FILE
                 return 1
             except Exception as e:
                 return f"failed to load {e}"
