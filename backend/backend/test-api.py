@@ -3,6 +3,7 @@ from unittest.mock import Mock, patch
 from backend.utils.raw_data import get_raw_data
 from backend.utils.forecasts import get_forecast
 from backend.main import update_model
+import pandas as pd
 
 import pytest
 from fastapi import UploadFile
@@ -75,7 +76,7 @@ def test_no_data(mock_redis):
     mock_redis.ft().search.return_value = Mock(docs=[])
 
     # Calling the function with mocked Redis
-    result = get_forecast("some_lat", "some_lon", {}, {}, {}, {})
+    result = get_forecast(51, 19, {}, {}, {}, {})
 
     # Asserting that the function returns 'no data'
     assert result == "no data"
@@ -83,7 +84,7 @@ def test_no_data(mock_redis):
 
 class dummy_xgb:
     def predict(*args):
-        return 0
+        return [[0, 0, 0, 0, 0, 0, 0, 0, 0]]
 
 
 def test_cold_model_prediction(mock_redis):
@@ -107,10 +108,15 @@ def test_cold_model_prediction(mock_redis):
             ]
         ),
     ]
+    # mock biases DataFrame
+    biases = pd.DataFrame()
+    biases["humid"] = [1, 2, 3]
+    biases["wind"] = [1, 2, 3]
+    biases["temp"] = [1, 2, 3]
     # Calling the function with mocked dependencies
     result = get_forecast(
-        "some_lat",
-        "some_lon",
+        51,
+        19,
         {
             "xgb_1": [-1, dummy_xgb()],
             "xgb_2": [-1, dummy_xgb()],
@@ -119,9 +125,9 @@ def test_cold_model_prediction(mock_redis):
         {},
         {},
         {
-            "xgb_1": [-1, {"humid": 1, "wind": 1, "temp": 1}],
-            "xgb_2": [-1, {"humid": 2, "wind": 2, "temp": 2}],
-            "xgb_3": [-1, {"humid": 3, "wind": 3, "temp": 3}],
+            "xgb_1": [-1, biases[biases.index == 0]],
+            "xgb_2": [-1, biases[biases.index == 1]],
+            "xgb_3": [-1, biases[biases.index == 2]],
         },
     )
 

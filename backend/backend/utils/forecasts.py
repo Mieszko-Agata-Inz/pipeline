@@ -21,9 +21,7 @@ def get_forecast(
     window_size = 12
     features_size = 3
 
-    geohash = geohash = "g".join(
-        [str(item) for item in pgh.encode(lat, lon, precision=3)]
-    )
+    geohash = "g".join([str(item) for item in pgh.encode(lat, lon, precision=3)])
     print(geohash)
     q = (
         Query(f"@geohash:{geohash}")
