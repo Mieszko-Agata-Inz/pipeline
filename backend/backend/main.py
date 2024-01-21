@@ -37,7 +37,7 @@ for name in ["xgb_1", "xgb_2", "xgb_3"]:
         coldstart_models_biases[name] = (
             name + ".pkl",
             pickle.load(f_1),
-        )  # UNCOMMENT WHEN DATA IN PICKLE FILE
+        )
 
 # Initialize dictionaries to store hot models and their biases
 hot_models = {}
@@ -166,7 +166,7 @@ async def update_model(
                     coldstart_models_biases[model_name] = (
                         model_name + ".pkl",
                         pickle.load(f_1),
-                    )  # UNCOMMENT WHEN DATA IN PICKLE FILE
+                    )
 
                 return 1
             except Exception as e:
